@@ -1,72 +1,54 @@
 # ClaudeNotify
 
-[![Windows](https://img.shields.io/badge/platform-Windows-blue)]()
-[![.NET](https://img.shields.io/badge/.NET-9.0-self--contained-purple)]()
-[![Downloads](https://img.shields.io/github/downloads/你的用户名/ClaudeNotify/total)]()
+[![Windows](https://img.shields.io/badge/platform-Windows%2010%2F11-blue)]()
+[![.NET](https://img.shields.io/badge/.NET-9.0%20NativeAOT-purple)]()
+[![Downloads](https://img.shields.io/github/downloads/1asate1/ClaudeNotify/total)]()
 
 Claude Code 任务完成时的 Windows 桌面通知工具。  
-A Windows desktop notification tool for Claude Code task completion.
+A Windows desktop notification tool for Claude Code.
 
 ---
 
 ## 简介 / Introduction
 
 **中文**  
-当 Claude Code 完成任务或需要你做决策时，自动弹出 Windows 系统通知。
--  如果你正在看终端且没有离开 → 不打扰
--  如果你切换到其他窗口 → 弹出通知
--  如果你超过 18 秒没有操作 → 弹出通知
+当 Claude Code 完成任务或需要你做决策时，自动弹出 Windows 系统通知，带有 Claude 图标和提示音。即使你切换到了其他窗口，也不会错过任何消息。
 
 **English**  
-Automatically sends a Windows toast notification when Claude Code finishes a task or needs your input.
--  No notification if you're actively watching the terminal
--  Notifies if you've switched away
--  Notifies if you've been idle for more than 18 seconds
+Automatically sends a Windows toast notification when Claude Code finishes a task or needs your input. Features the Claude icon and distinct sounds so you never miss a message, even when working in another window.
+
+---
+
+## 通知类型 / Notification Types
+
+| 触发时机 / Trigger | 通知内容 / Message | 提示音 / Sound |
+|---|---|---|
+| Claude 输出完毕 / Output complete | Output Complete | 默认提示音 / Default |
+| 需要你做决策 / Needs your input | CHOICE! | 提醒音 / Reminder |
 
 ---
 
 ## 安装 / Installation
 
 **中文**  
-1. 下载 [Releases](../../releases) 页面中的 `ClaudeNotifySetup.exe`
-2. 运行它，自动完成所有配置  
-   **不需要安装 .NET 运行时**（已全部打包）
+1. 前往 [Releases](../../releases) 页面下载 `ClaudeNotifySetup.exe`
+2. 双击运行，自动完成所有配置
+3. 无需安装 .NET 运行时
 
 **English**  
 1. Download `ClaudeNotifySetup.exe` from the [Releases](../../releases) page
-2. Run it — setup is fully automatic  
-   **No .NET runtime required** (self-contained)
+2. Double-click to run — setup is fully automatic
+3. No .NET runtime required
 
 ---
 
-## 通知类型 / Notification Types
+## 更新 / Update
 
-| 触发时机 / Trigger | 通知内容 / Message | 场景 / Scenario |
-|---|---|---|
-| 任务完成 / Task complete | Output Complete | Claude 代码执行完毕 |
-| 需要决策 / Needs input | CHOICE! | Claude 等待你选择操作 |
+**中文**  
+下载新版 `ClaudeNotifySetup.exe` 重新运行一次即可，会自动覆盖旧版本。
 
----
-
-## 手动测试 / Manual Test
-
-安装后，可以直接运行主程序查看当前状态：
-
-```bash
-"C:\Users\%USERNAME%\.claude\ClaudeNotify.exe" debug
-```
-
-会显示当前空闲时间和窗口焦点状态。
-
----
-
-## 工作原理 / How It Works
-
-1. Claude Code 完成任务时触发 `Stop` hook
-2. 程序检查当前窗口焦点和用户空闲时间
-3. 根据规则决定是否弹出通知
-
-所有逻辑都在一个独立的 exe 中，不影响 Claude Code 本身。
+**English**  
+Download the new `ClaudeNotifySetup.exe` and run it again. It will automatically replace the old version.
 
 ---
 
@@ -74,16 +56,37 @@ Automatically sends a Windows toast notification when Claude Code finishes a tas
 
 - Windows 10 / 11
 - [Claude Code](https://claude.ai/code)
-- **不需要安装 .NET 运行时**（已内置）
+
+---
+
+## 工作原理 / How It Works
+
+Setup 安装时会做两件事：
+
+1. 将 `ClaudeNotify.exe` 释放到 `%USERPROFILE%\.claude\`
+2. 在 `%USERPROFILE%\.claude\settings.json` 中写入以下 hooks：
+
+```json
+{
+  "hooks": {
+    "Stop": "ClaudeNotify.exe stop",
+    "Notification (permission_prompt)": "ClaudeNotify.exe choice",
+    "Notification (elicitation_dialog)": "ClaudeNotify.exe choice"
+  }
+}
+```
+
+每次 hook 触发时，`ClaudeNotify.exe` 启动、弹出通知、立即退出，不常驻后台。
 
 ---
 
 ## 构建 / Build
 
-如果你想自己编译：
+需要 Visual Studio 2022（含 C++ 桌面开发工具）。
 
 ```bash
-dotnet publish -c Release -r win-x64 --self-contained true
+dotnet publish ClaudeNotify -c Release -o dist
+dotnet publish ClaudeNotifySetup -c Release -o dist
 ```
 
 ---
