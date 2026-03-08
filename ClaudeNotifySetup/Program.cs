@@ -46,8 +46,19 @@ static JsonObject MakeHook(string command) => new JsonObject
     })
 };
 
-hooks["Stop"]         = new JsonArray(MakeHook("\"$HOME/.claude/ClaudeNotify.exe\" stop"));
-hooks["Notification"] = new JsonArray(MakeHook("\"$HOME/.claude/ClaudeNotify.exe\" choice"));
+hooks["Stop"] = new JsonArray(MakeHook("\"$HOME/.claude/ClaudeNotify.exe\" stop"));
+hooks["Notification"] = new JsonArray(
+    new JsonObject
+    {
+        ["matcher"] = "permission_prompt",
+        ["hooks"] = new JsonArray(new JsonObject { ["type"] = "command", ["command"] = "\"$HOME/.claude/ClaudeNotify.exe\" choice" })
+    },
+    new JsonObject
+    {
+        ["matcher"] = "elicitation_dialog",
+        ["hooks"] = new JsonArray(new JsonObject { ["type"] = "command", ["command"] = "\"$HOME/.claude/ClaudeNotify.exe\" choice" })
+    }
+);
 
 var json = root.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
 File.WriteAllText(settingsPath, json, new UTF8Encoding(false));

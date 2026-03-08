@@ -6,10 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>ClaudeNotify</AssemblyName>
     <RootNamespace>ClaudeNotify</RootNamespace>
-    <PublishSingleFile>true</PublishSingleFile>
-    <SelfContained>true</SelfContained>
+    <PublishAot>true</PublishAot>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>link</TrimMode>
   </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="claudeLOGOPHOTO.png" />
+  </ItemGroup>
 </Project>
